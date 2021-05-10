@@ -1,9 +1,11 @@
+#web app containing a highCharts graph that represents average by month 
+
 import justpy as jp
 import pandas as pd
 
 data=pd.read_csv('reviews.csv',parse_dates=['Timestamp'])
-data['Day']=data['Timestamp'].dt.date
-day_average=data.groupby(['Day']).mean() 
+data['Month']=data['Timestamp'].dt.strftime('%Y-%m')
+month_average=data.groupby(['Month']).mean()
 
 chart_def= """
 {
@@ -15,13 +17,13 @@ chart_def= """
         text: 'Atmosphere Temperature by Altitude'
     },
     subtitle: {
-        text: 'According to the Standard Atmosphere Model'
+        text: ''
     },
     xAxis: {
         reversed: false,
         title: {
             enabled: true,
-            text: 'Date'
+            text: 'Month'
         },
         labels: {
             format: '{value}'
@@ -49,7 +51,7 @@ chart_def= """
     },
     tooltip: {
         headerFormat: '<b>{series.name}</b><br/>',
-        pointFormat: '{point.x} Date: {point.y} AvR'
+        pointFormat: '{point.x} Month: {point.y} AvR'
     },
     plotOptions: {
         spline: {
@@ -68,13 +70,13 @@ chart_def= """
 def app():
     wp=jp.QuasarPage()
     h1=jp.QDiv(a=wp,text="Analysis of Course Reviews",classes="text-h3 text-center q-pa-md")
-    p1=jp.QDiv(a=wp,text="These graphs represent course review analysis",classes="text-center")
+    p1=jp.QDiv(a=wp,text="These graphs represent course review analysis",classes="text-left")
     hc=jp.HighCharts(a=wp,options=chart_def)
 
-    hc.options.title.text="Average rating by day"
+    hc.options.title.text="Average rating by month"
     
-    hc.options.xAxis.categories=list(day_average.index)
-    hc.options.series[0].data=list(day_average['Rating'])
+    hc.options.xAxis.categories=list(month_average.index)
+    hc.options.series[0].data=list(month_average['Rating'])
     return wp
 
 jp.justpy(app) #are grija sa ruleze serverul practic
